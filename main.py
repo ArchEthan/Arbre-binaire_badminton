@@ -6,10 +6,6 @@ class Match:
     self.joueur2 = None
     self.gagnant = None
 
-  def est_jouable(self):
-    return self.left and self.right and \
-      self.left.gagnant and self.right.gagnant
-
   def mettre_a_jour(self):
     if self.est_jouable():
       self.joueur1 = self.left.gagnant
