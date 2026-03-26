@@ -20,12 +20,19 @@ class Match:
             self.gagnant = self.joueur1
 
 # Affiche l'arbre
-def afficher_arbre_graphique(match, prefix="", is_left=True):
-    if match.right:
-        afficher_arbre_graphique(match.right, prefix + ("│   " if is_left else "    "), False)
+def afficher_arbre(match, prefix="", is_left=True):
+    if match is None:
+        return
+    
+    # Affiche le noeud actuel (match)
     print(prefix + ("└── " if is_left else "┌── ") + f"[{match.joueur1 or '-'} vs {match.joueur2 or '-'}] -> {match.gagnant or '-'}")
-    if match.left:
-        afficher_arbre_graphique(match.left, prefix + ("    " if is_left else "│   "), True)
+    
+    # Prépare le préfixe pour les enfants
+    if match.left or match.right:
+        if match.left:
+            afficher_arbre(match.left, prefix + ("    " if is_left else "│   "), True)
+        if match.right:
+            afficher_arbre(match.right, prefix + ("│   " if is_left else "    "), False)
 
 # --- 16e de finale ---
 m1 = Match("Equipe A", "Equipe B"); m1.gagnant = "Equipe A"
