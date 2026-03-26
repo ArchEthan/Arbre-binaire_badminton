@@ -20,16 +20,12 @@ class Match:
             self.gagnant = self.joueur1
 
 # Affiche l'arbre
-def afficher_arbre(match, niveau=0):
-    if match is None:
-        return
-    indent = "  " * niveau
-    j1 = match.joueur1 if match.joueur1 else "-"
-    j2 = match.joueur2 if match.joueur2 else "-"
-    g = match.gagnant if match.gagnant else "-"
-    print(f"{indent}[{j1} vs {j2}] -> Gagnant: {g}")
-    afficher_arbre(match.left, niveau + 1)
-    afficher_arbre(match.right, niveau + 1)
+def afficher_arbre_graphique(match, prefix="", is_left=True):
+    if match.right:
+        afficher_arbre_graphique(match.right, prefix + ("│   " if is_left else "    "), False)
+    print(prefix + ("└── " if is_left else "┌── ") + f"[{match.joueur1 or '-'} vs {match.joueur2 or '-'}] -> {match.gagnant or '-'}")
+    if match.left:
+        afficher_arbre_graphique(match.left, prefix + ("    " if is_left else "│   "), True)
 
 # --- 16e de finale ---
 m1 = Match("Equipe A", "Equipe B"); m1.gagnant = "Equipe A"
