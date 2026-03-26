@@ -6,27 +6,26 @@ class Match:
         self.joueur2 = joueur2
         self.gagnant = None
 
+    # Met à jour les joueurs à partir des sous-matchs
     def mettre_a_jour(self):
         if self.left and self.right:
             self.joueur1 = self.left.gagnant
             self.joueur2 = self.right.gagnant
 
+    # Simule le match
     def jouer(self):
-        if self.joueur1 and self.joueur2:
+        self.mettre_a_jour()  # s'assure que les joueurs sont à jour
+        if self.joueur1 and self.joueur2 and not self.gagnant:
             # Logique simple : joueur1 gagne
             self.gagnant = self.joueur1
 
-# Fonction pour afficher l'arbre de manière visuelle
-def afficher_arbre(match, niveau=0):
-    if match is None:
-        return
-    indent = "  " * niveau
-    j1 = match.joueur1 if match.joueur1 else "-"
-    j2 = match.joueur2 if match.joueur2 else "-"
-    g = match.gagnant if match.gagnant else "-"
-    print(f"{indent}[{j1} vs {j2}] -> Gagnant: {g}")
-    afficher_arbre(match.left, niveau + 1)
-    afficher_arbre(match.right, niveau + 1)
+# Affiche l'arbre
+def afficher_arbre_graphique(match, prefix="", is_left=True):
+    if match.right:
+        afficher_arbre_graphique(match.right, prefix + ("│   " if is_left else "    "), False)
+    print(prefix + ("└── " if is_left else "┌── ") + f"[{match.joueur1 or '-'} vs {match.joueur2 or '-'}] -> {match.gagnant or '-'}")
+    if match.left:
+        afficher_arbre_graphique(match.left, prefix + ("    " if is_left else "│   "), True)
 
 # --- 16e de finale ---
 m1 = Match("Equipe A", "Equipe B"); m1.gagnant = "Equipe A"
@@ -51,27 +50,18 @@ d2 = Match(); d2.left = q3; d2.right = q4
 # --- Finale ---
 finale = Match(); finale.left = d1; finale.right = d2
 
-# Simulation du tournoi
-racine = finale
-while True:
-    jouables = []
-    def trouver_jouables(noeud):
-        if noeud is None:
-            return
-        if noeud.left and noeud.right and noeud.left.gagnant and noeud.right.gagnant and noeud.gagnant is None:
-            jouables.append(noeud)
-        trouver_jouables(noeud.left)
-        trouver_jouables(noeud.right)
-    trouver_jouables(racine)
+# Fonction récursive pour jouer tous les matchs
+def jouer_tournoi(match):
+    if match is None:
+        return
+    jouer_tournoi(match.left)
+    jouer_tournoi(match.right)
+    match.jouer()
 
-    if not jouables:
-        break
+# Jouer le tournoi complet
+jouer_tournoi(finale)
 
-    for match in jouables:
-        match.mettre_a_jour()
-        match.jouer()
-
-# Affichage de l'arbre
+# Affichage
 print("Arbre complet du tournoi :")
 afficher_arbre(finale)
 print("\nVainqueur du tournoi :", finale.gagnant)
