@@ -1,53 +1,77 @@
 class Match:
-  def __init__(self):
-    self.left = None
-    self.right = None
-    self.joueur1 = None
-    self.joueur2 = None
-    self.gagnant = None
+    def __init__(self, joueur1=None, joueur2=None):
+        self.left = None
+        self.right = None
+        self.joueur1 = joueur1
+        self.joueur2 = joueur2
+        self.gagnant = None
 
-  def mettre_a_jour(self):
-    if self.est_jouable():
-      self.joueur1 = self.left.gagnant
-      self.joueur2 = self.right.gagnant
-          
-  def est_jouable(self):
-    return (
-      self.left is not None and
-      self.right is not None and
-      self.left.gagnant is not None and
-      self.right.gagnant is not None and
-      self.gagnant is None
-    )
+    def mettre_a_jour(self):
+        if self.left and self.right:
+            self.joueur1 = self.left.gagnant
+            self.joueur2 = self.right.gagnant
 
-  def matchs_jouables(noeud):
-    if noeud is None:
-      return []
+    def jouer(self):
+        if self.joueur1 and self.joueur2:
+            # Logique simple : joueur1 gagne
+            self.gagnant = self.joueur1
 
+# Fonction pour afficher l'arbre de manière visuelle
+def afficher_arbre(match, niveau=0):
+    if match is None:
+        return
+    indent = "  " * niveau
+    j1 = match.joueur1 if match.joueur1 else "-"
+    j2 = match.joueur2 if match.joueur2 else "-"
+    g = match.gagnant if match.gagnant else "-"
+    print(f"{indent}[{j1} vs {j2}] -> Gagnant: {g}")
+    afficher_arbre(match.left, niveau + 1)
+    afficher_arbre(match.right, niveau + 1)
+
+# --- 16e de finale ---
+m1 = Match("Equipe A", "Equipe B"); m1.gagnant = "Equipe A"
+m2 = Match("Equipe C", "Equipe D"); m2.gagnant = "Equipe C"
+m3 = Match("Equipe E", "Equipe F"); m3.gagnant = "Equipe E"
+m4 = Match("Equipe G", "Equipe H"); m4.gagnant = "Equipe G"
+m5 = Match("Equipe I", "Equipe J"); m5.gagnant = "Equipe I"
+m6 = Match("Equipe K", "Equipe L"); m6.gagnant = "Equipe K"
+m7 = Match("Equipe M", "Equipe N"); m7.gagnant = "Equipe M"
+m8 = Match("Equipe O", "Equipe P"); m8.gagnant = "Equipe O"
+
+# --- Quarts ---
+q1 = Match(); q1.left = m1; q1.right = m2
+q2 = Match(); q2.left = m3; q2.right = m4
+q3 = Match(); q3.left = m5; q3.right = m6
+q4 = Match(); q4.left = m7; q4.right = m8
+
+# --- Demi-finales ---
+d1 = Match(); d1.left = q1; d1.right = q2
+d2 = Match(); d2.left = q3; d2.right = q4
+
+# --- Finale ---
+finale = Match(); finale.left = d1; finale.right = d2
+
+# Simulation du tournoi
+racine = finale
+while True:
     jouables = []
+    def trouver_jouables(noeud):
+        if noeud is None:
+            return
+        if noeud.left and noeud.right and noeud.left.gagnant and noeud.right.gagnant and noeud.gagnant is None:
+            jouables.append(noeud)
+        trouver_jouables(noeud.left)
+        trouver_jouables(noeud.right)
+    trouver_jouables(racine)
 
-    if noeud.est_jouable():
-      jouables.append(noeud)
+    if not jouables:
+        break
 
-    jouables += matchs_jouables(noeud.left)
-    jouables += matchs_jouables(noeud.right)
+    for match in jouables:
+        match.mettre_a_jour()
+        match.jouer()
 
-    return jouables
-
-
-# feuilles (16e de finale)
-m1 = Match()
-m1.gagnant = "Equipe A"
-
-m2 = Match()
-m2.gagnant = "Equipe B"
-
-# match suivant (8e)
-m3 = Match()
-m3.left = m1
-m3.right = m2
-
-m3.mettre_a_jour()
-
-print(m3.joueur1, "vs", m3.joueur2)
-
+# Affichage de l'arbre
+print("Arbre complet du tournoi :")
+afficher_arbre(finale)
+print("\nVainqueur du tournoi :", finale.gagnant)
