@@ -58,7 +58,6 @@ Le système prend en charge les différentes étapes :
 📅 Exemple d'information de match
 
     Joueurs : A vs B
-    Score : 2 - 1
     Gagnant : A
     Date : 2026-03-26
 
