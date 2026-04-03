@@ -8,7 +8,6 @@
         Informations du match
         Participants
         Résultat
-        Date du match
 
     Les nœuds parents représentent les matchs suivants
 
@@ -29,23 +28,13 @@ Le système prend en charge les différentes étapes :
     Accès au prochain match via la structure de l’arbre
     Mise à jour dynamique des nœuds
 
-📊 Statistiques des joueurs (optionel)
-
-    Tableau des meilleurs joueurs :
-        ⚽ Meilleur buteur
-        🎯 Meilleur tireur
-
-    Mise à jour en fonction des performances enregistrées
-
 💾 Stockage des données
 
     Les informations sont stockées directement dans les nœuds de l’arbre
 
     Chaque nœud contient :
         Joueurs
-        Score
         Gagnant
-        Date du match
 
 🔄 Logique de fonctionnement
 
@@ -59,5 +48,3 @@ Le système prend en charge les différentes étapes :
 
     Joueurs : A vs B
     Gagnant : A
-    Date : 2026-03-26
-
