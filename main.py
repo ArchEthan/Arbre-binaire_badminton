@@ -5,70 +5,105 @@ class Match:
         self.joueur1 = joueur1
         self.joueur2 = joueur2
         self.gagnant = None
+        self.y = 0  # position verticale
 
-    # Met à jour les joueurs à partir des sous-matchs
-    def mettre_a_jour(self):
-        if self.left and self.right:
-            self.joueur1 = self.left.gagnant
-            self.joueur2 = self.right.gagnant
 
-    # Simule le match
-    def jouer(self):
-        self.mettre_a_jour()  # s'assure que les joueurs sont à jour
-        if self.joueur1 and self.joueur2 and not self.gagnant:
-            # Logique simple : joueur1 gagne
-            self.gagnant = self.joueur1
+def creer_match(j1, j2, gagnant):
+    m = Match(j1, j2)
+    m.gagnant = gagnant
+    return m
 
-# Affiche l'arbre
-def afficher_arbre(match, prefix="", is_left=True):
-    if match is None:
-        return
-    
-    # Affiche le noeud actuel (match)
-    print(prefix + ("└── " if is_left else "┌── ") + f"[{match.joueur1 or '-'} vs {match.joueur2 or '-'}] -> {match.gagnant or '-'}")
-    
-    # Prépare le préfixe pour les enfants
-    if match.left or match.right:
-        if match.left:
-            afficher_arbre(match.left, prefix + ("    " if is_left else "│   "), True)
-        if match.right:
-            afficher_arbre(match.right, prefix + ("│   " if is_left else "    "), False)
 
-# --- 16e de finale ---
-m1 = Match("Equipe A", "Equipe B"); m1.gagnant = "Equipe A"
-m2 = Match("Equipe C", "Equipe D"); m2.gagnant = "Equipe C"
-m3 = Match("Equipe E", "Equipe F"); m3.gagnant = "Equipe E"
-m4 = Match("Equipe G", "Equipe H"); m4.gagnant = "Equipe G"
-m5 = Match("Equipe I", "Equipe J"); m5.gagnant = "Equipe I"
-m6 = Match("Equipe K", "Equipe L"); m6.gagnant = "Equipe K"
-m7 = Match("Equipe M", "Equipe N"); m7.gagnant = "Equipe M"
-m8 = Match("Equipe O", "Equipe P"); m8.gagnant = "Equipe O"
+# --- Arbre ---
+m1 = creer_match("A", "B", "A")
+m2 = creer_match("C", "D", "C")
+m3 = creer_match("E", "F", "E")
+m4 = creer_match("G", "H", "G")
+m5 = creer_match("I", "J", "I")
+m6 = creer_match("K", "L", "K")
+m7 = creer_match("M", "N", "M")
+m8 = creer_match("O", "P", "O")
 
-# --- Quarts ---
 q1 = Match(); q1.left = m1; q1.right = m2
 q2 = Match(); q2.left = m3; q2.right = m4
 q3 = Match(); q3.left = m5; q3.right = m6
 q4 = Match(); q4.left = m7; q4.right = m8
 
-# --- Demi-finales ---
 d1 = Match(); d1.left = q1; d1.right = q2
 d2 = Match(); d2.left = q3; d2.right = q4
 
-# --- Finale ---
 finale = Match(); finale.left = d1; finale.right = d2
 
-# Fonction récursive pour jouer tous les matchs
+
+# --- Simulation ---
 def jouer_tournoi(match):
     if match is None:
         return
     jouer_tournoi(match.left)
     jouer_tournoi(match.right)
-    match.jouer()
+    match.gagnant = match.left.gagnant if match.left else match.gagnant
 
-# Jouer le tournoi complet
 jouer_tournoi(finale)
 
-# Affichage
-print("Arbre complet du tournoi :")
-afficher_arbre(finale)
-print("\nVainqueur du tournoi :", finale.gagnant)
+
+# --- POSITIONNEMENT ---
+def assigner_positions(match, y=0, step=2):
+    if match.left is None and match.right is None:
+        match.y = y
+        return y + step
+
+    y = assigner_positions(match.left, y, step)
+    y = assigner_positions(match.right, y, step)
+
+    match.y = (match.left.y + match.right.y) // 2
+    return y
+
+
+assigner_positions(finale)
+
+
+# --- DESSIN ---
+largeur = 80
+hauteur = 32
+canvas = [[" "]*largeur for _ in range(hauteur)]
+
+
+def draw(match, x):
+    if match is None:
+        return
+
+    y = match.y
+    texte = match.gagnant or "?"
+
+    # écrire texte
+    for i, c in enumerate(texte):
+        canvas[y][x+i] = c
+
+    if match.left and match.right:
+        y1 = match.left.y
+        y2 = match.right.y
+
+        # vertical
+        for i in range(min(y1, y2), max(y1, y2)+1):
+            canvas[i][x-2] = "│"
+
+        # horizontal
+        for i in range(x-6, x-2):
+            canvas[y1][i] = "─"
+            canvas[y2][i] = "─"
+
+        canvas[y1][x-2] = "┌"
+        canvas[y2][x-2] = "└"
+
+        draw(match.left, x-8)
+        draw(match.right, x-8)
+
+
+draw(finale, 70)
+
+
+# --- AFFICHAGE ---
+for ligne in canvas:
+    print("".join(ligne))
+
+print("\nVainqueur :", finale.gagnant)
